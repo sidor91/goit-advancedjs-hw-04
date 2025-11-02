@@ -34,7 +34,6 @@ function getCardMarkup(item) {
 
 export function renderGallery(list){
   const markup = list.map(item => getCardMarkup(item)).join('');
-  gallery.innerHTML = ''; 
   gallery.insertAdjacentHTML('beforeend', markup);
 
   lightbox.refresh();

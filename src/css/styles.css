@@ -79,12 +79,12 @@
   transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.submit-btn:hover {
-  background-color: #6C8CFF;
+.submit-btn:hover, .load-more-btn:hover {
+  background-color: #6c8cff;
 }
 
-.submit-btn:active {
-  background-color: #6C8CFF;
+.submit-btn:active, .load-more-btn:active  {
+  background-color: #6c8cff;
 }
 
 .gallery {
@@ -93,6 +93,7 @@
   gap: 20px;
   width: 100%;
   max-width: 1200px;
+  margin-bottom: 32px;
 }
 
 .photo-card {
@@ -134,4 +135,23 @@
   font-weight: 600;
   font-size: 15px;
   color: #111;
+}
+
+.load-more-btn {
+  display: none;
+  margin: 0 auto;
+  padding: 8px 16px;
+
+  color: #fff;
+  background-color: #4e75ff;
+  border-radius: 8px;
+
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.64px;
+
+  outline: none;
+  border: none;
 }
