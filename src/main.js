@@ -74,23 +74,17 @@ loadMoreBtn.addEventListener('click', async () => {
 
     const { query, currentPage, totalHits } = currentState;
 
-    let limit = DEFAULT_PER_PAGE;
-    const alreadyRenderedAmount = currentPage * limit;
+    const alreadyRenderedAmount = currentPage * DEFAULT_PER_PAGE;
     const amountLeft = totalHits - alreadyRenderedAmount;
 
     if (amountLeft <= 0) {
       iziToast.warning({
         message: "We're sorry, but you've reached the end of search results.",
       });
-      hideLoadMoreBtn();
       return;
     }
 
-    if (amountLeft < limit) {
-      limit = amountLeft;
-    }
-
-    const response = await fetchPhotos({ query, page: currentPage + 1, limit });
+    const response = await fetchPhotos({ query, page: currentPage + 1 });
 
     currentState.currentPage += 1;
 
