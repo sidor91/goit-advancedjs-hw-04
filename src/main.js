@@ -23,10 +23,6 @@ let currentState = {
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
-  resetGallery();
-  hideLoadMoreBtn();
-  currentState = { ...defaultState };
-
   const searchQuery = form.search.value.trim();
 
   if (!searchQuery.length) {
@@ -36,7 +32,9 @@ form.addEventListener('submit', async e => {
     return;
   }
 
-  currentState.query = searchQuery;
+  resetGallery();
+  hideLoadMoreBtn();
+  currentState = { ...defaultState, query: searchQuery };
 
   try {
     showLoader();
