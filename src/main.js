@@ -1,33 +1,46 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import { fetchPhotos, DEFAULT_PER_PAGE } from './js/pixabay-api';
+import { fetchPhotos } from './js/pixabay-api';
 import { renderGallery } from './js/render-functions';
+import {
+  showLoader,
+  hideLoader,
+  showLoadMoreBtn,
+  hideLoadMoreBtn,
+  resetGallery,
+  resetFormInput,
+} from './js/helpers';
+import { DEFAULT_PER_PAGE, defaultState } from './js/constants';
 
 const form = document.querySelector('#searchForm');
-const loaderContainer = document.querySelector('.loader-container');
 const loadMoreBtn = document.querySelector('.load-more-btn');
-const gallery = document.querySelector('.gallery');
 
-const LS_KEY = 'queryParams';
+let currentState = {
+  query: '',
+  totalHits: 0,
+  currentPage: 0,
+};
 
 form.addEventListener('submit', async e => {
   e.preventDefault();
-  localStorage.removeItem(LS_KEY);
-  gallery.innerHTML = '';
-  loadMoreBtn.style.display = 'none';
+  resetGallery();
+  hideLoadMoreBtn();
+  currentState = { ...defaultState };
 
-  const query = form.search.value.trim();
+  const searchQuery = form.search.value.trim();
 
-  if (!query.length) {
+  if (!searchQuery.length) {
     iziToast.info({
       message: 'Search should not be empty!',
     });
     return;
   }
 
+  currentState.query = searchQuery;
+
   try {
-    loaderContainer.style.display = 'flex';
-    const response = await fetchPhotos({ query });
+    showLoader();
+    const response = await fetchPhotos({ query: searchQuery });
 
     if (!response.hits.length) {
       iziToast.error({
@@ -37,36 +50,31 @@ form.addEventListener('submit', async e => {
       return;
     }
 
-    localStorage.setItem(
-      LS_KEY,
-      JSON.stringify({ query, totalHits: response.totalHits, currentPage: 1 })
-    );
+    currentState.totalHits = response.totalHits;
+    currentState.currentPage += 1;
 
-    form.search.value = '';
+    resetFormInput();
     renderGallery(response.hits);
-    loadMoreBtn.style.display = 'block';
+
+    if (response.totalHits > DEFAULT_PER_PAGE) {
+      showLoadMoreBtn();
+    }
   } catch (error) {
     iziToast.error({
       message: `Oooops...Something went wrong... ${error.message}`,
     });
-    loadMoreBtn.style.display = 'none';
+    hideLoadMoreBtn();
   } finally {
-    loaderContainer.style.display = 'none';
+    hideLoader();
   }
 });
 
 loadMoreBtn.addEventListener('click', async () => {
   try {
-    loaderContainer.style.display = 'flex';
-    loadMoreBtn.style.display = 'none';
+    showLoader();
+    hideLoadMoreBtn();
 
-    const queryParams = JSON.parse(localStorage.getItem(LS_KEY));
-
-    if (!queryParams || !Object.keys(queryParams).length) {
-      return;
-    }
-
-    const { query, currentPage, totalHits } = queryParams;
+    const { query, currentPage, totalHits } = currentState;
 
     let limit = DEFAULT_PER_PAGE;
     const alreadyRenderedAmount = currentPage * limit;
@@ -76,7 +84,7 @@ loadMoreBtn.addEventListener('click', async () => {
       iziToast.warning({
         message: "We're sorry, but you've reached the end of search results.",
       });
-      loadMoreBtn.style.display = 'none';
+      hideLoadMoreBtn();
       return;
     }
 
@@ -86,10 +94,7 @@ loadMoreBtn.addEventListener('click', async () => {
 
     const response = await fetchPhotos({ query, page: currentPage + 1, limit });
 
-    localStorage.setItem(
-      LS_KEY,
-      JSON.stringify({ query, currentPage: currentPage + 1, totalHits })
-    );
+    currentState.currentPage += 1;
 
     renderGallery(response.hits);
 
@@ -102,12 +107,12 @@ loadMoreBtn.addEventListener('click', async () => {
       });
     }
 
-    loadMoreBtn.style.display = 'block';
+    showLoadMoreBtn();
   } catch (error) {
     iziToast.error({
       message: `Oooops...Something went wrong... ${error.message}`,
     });
   } finally {
-    loaderContainer.style.display = 'none';
+    hideLoader();
   }
 });

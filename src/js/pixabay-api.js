@@ -1,18 +1,5 @@
 import axios from 'axios';
-
-const API_KEY = '33349547-44f128e159fc9ba4be7374396';
-const BASE_URL = 'https://pixabay.com/api/';
-export const DEFAULT_PER_PAGE = 15;
-
-const queryParams = {
-  key: API_KEY,
-  q: '',
-  image_type: 'photo',
-  orientation: 'horizontal',
-  safesearch: true,
-  page: 1,
-  per_page: 15,
-};
+import {BASE_URL, DEFAULT_PER_PAGE, defaultQueryParams} from './constants';
 
 export async function fetchPhotos(payload) {
   const {query, page = 1, limit = DEFAULT_PER_PAGE} = payload;
@@ -20,7 +7,7 @@ export async function fetchPhotos(payload) {
   await new Promise(resolve => setTimeout(resolve, 5000));
 
   const queryParamsObject = new URLSearchParams({
-    ...queryParams,
+    ...defaultQueryParams,
     q: query,
     page,
     per_page: limit
